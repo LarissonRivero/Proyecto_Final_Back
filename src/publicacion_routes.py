@@ -27,7 +27,6 @@ class Publicacion(db.Model):
             "imagen": self.imagen
         }
     
-
 @publicacion_blueprint.route('/publicacion', methods=['POST'])
 def agregar_publicacion():
     try:
