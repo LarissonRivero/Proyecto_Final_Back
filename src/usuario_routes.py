@@ -91,5 +91,71 @@ def obtener_usuario(id):
     finally:
         db.session.close()
 
+@usuario_blueprint.route('/usuario/<int:id>', methods=['PUT'])
+def actualizar_usuario(id):
+    try:
+        data = request.get_json()
+
+        if not all(key in data for key in ['email', 'password', 'username']):
+            raise ValueError("Campos 'email', 'password' y 'username' son requeridos")
+
+        usuario = Usuario.query.get(id)
+
+        usuario.email = data['email']
+        usuario.password = data['password']
+        usuario.username = data['username']
+
+        db.session.commit()
+
+        return jsonify({"mensaje": "Usuario actualizado correctamente"}), 200
+
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"Error al actualizar el usuario: {str(e)}"}), 500
+    finally:
+        db.session.close()  
+
+@usuario_blueprint.route('/usuario/<int:id>', methods=['DELETE'])
+def eliminar_usuario(id):
+    try:
+        usuario = Usuario.query.get(id)
+        db.session.delete(usuario)
+        db.session.commit()
+        return jsonify({"mensaje": "Usuario eliminado correctamente"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"Error al eliminar el usuario: {str(e)}"}), 500
+    finally:
+        db.session.close()
+
+# Endpoint para verificar el correo de recuperación
+@usuario_blueprint.route('/usuario/recuperar', methods=['POST'])
+def recuperar_contrasena():
+    try:
+        data = request.get_json()
+
+        if not all(key in data for key in ['email']):
+            raise ValueError("Campo 'email' es requerido")
+
+        usuario = Usuario.query.filter_by(email=data['email']).first()
+
+        if usuario:
+            return jsonify({"mensaje": "Correo de recuperación enviado correctamente"}), 200
+        else:
+            return jsonify({"error": "Correo no registrado"}), 401
+
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": f"Error al recuperar la contraseña: {str(e)}"}), 500
+    finally:
+        db.session.close()
+
+
+
+
+
 
 
