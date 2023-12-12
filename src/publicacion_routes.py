@@ -24,7 +24,7 @@ class Publicacion(db.Model):
             "año": self.año,
             "precio": self.precio,
             "descripcion": self.descripcion,
-            "imagen": self.imagen
+            "imagen": self.imagen,
         }
     
 @publicacion_blueprint.route('/publicacion', methods=['POST'])
@@ -38,10 +38,10 @@ def agregar_publicacion():
         nueva_publicacion = Publicacion(
             marca=data['marca'],
             modelo=data['modelo'],
-            año=data['año'],
+            año=str(data['año']),
             precio=data['precio'],
             descripcion=data['descripcion'],
-            imagen=data['imagen']
+            imagen=data['imagen'],
         )
 
         db.session.add(nueva_publicacion)
@@ -129,6 +129,5 @@ def eliminar_publicacion(id):
         return jsonify({"error": f"Error al eliminar la publicación: {str(e)}"}), 500
     finally:
         db.session.close()
-
 
 
